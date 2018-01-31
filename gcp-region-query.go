@@ -1,5 +1,5 @@
-// Query the GCP Metadata API to retrieve the Google GCP Region name your VM is currently running in
-package gcpdcquery
+// Package gcpregionquery retrieves the Google GCP Region name where your VM is currently running in.
+package gcpregionquery
 
 import (
 	"fmt"
@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-// GetLocalDCWithTimeout returns the local GCP Region w.
+// GetLocalRegionWithTimeout returns the local GCP Region w.
 // a configurable Timeout for the HTTP Request to the GCP Metadata API.
 // Returns the DC name like europe-west1-c.
-func GetLocalDCWithTimeout(timeout time.Duration) (string, error) {
+func GetLocalRegionWithTimeout(timeout time.Duration) (string, error) {
 	zoneNameQueryURL := `http://metadata.google.internal/computeMetadata/v1/instance/zone`
 	req, err := http.NewRequest(`GET`, zoneNameQueryURL, nil)
 	if err != nil {
@@ -35,9 +35,9 @@ func GetLocalDCWithTimeout(timeout time.Duration) (string, error) {
 	return dc, err
 }
 
-// GetLocalDC returns the local GCP Region with a default Timeout of 1s
-func GetLocalDC() (string, error) {
-	return GetLocalDCWithTimeout(1 * time.Second)
+// GetLocalRegion returns the local GCP Region with a default Timeout of 1s
+func GetLocalRegion() (string, error) {
+	return GetLocalRegionWithTimeout(1 * time.Second)
 }
 
 var dcregex = regexp.MustCompile(`\/([\w-]*)-.*$`)
