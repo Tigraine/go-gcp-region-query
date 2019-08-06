@@ -14,7 +14,13 @@ import (
 // Returns the DC name like europe-west1-c.
 func GetLocalRegionWithTimeout(timeout time.Duration) (string, error) {
 	zoneNameQueryURL := `http://metadata.google.internal/computeMetadata/v1/instance/zone`
-	req, err := http.NewRequest(`GET`, zoneNameQueryURL, nil)
+	body, err := getMetaDataWithTimeout(zoneNameQueryURL, timeout)
+	dc, err := parseDataCenterName(body)
+	return dc, err
+}
+
+func getMetaDataWithTimeout(url string , timeout time.Duration) (string, error) {
+	req, err := http.NewRequest(`GET`, url, nil)
 	if err != nil {
 		return ``, err
 	}
@@ -31,13 +37,16 @@ func GetLocalRegionWithTimeout(timeout time.Duration) (string, error) {
 	if err != nil {
 		return ``, err
 	}
-	dc, err := parseDataCenterName(string(body))
-	return dc, err
+	return string(body), nil
 }
 
 // GetLocalRegion returns the local GCP Region with a default Timeout of 1s
 func GetLocalRegion() (string, error) {
 	return GetLocalRegionWithTimeout(1 * time.Second)
+}
+
+func GetInstanceName() (string, error) {
+	return getMetaDataWithTimeout(`http://metadata.google.internal/computeMetadata/v1/instance/name`, 1 * time.Second)
 }
 
 var dcregex = regexp.MustCompile(`\/([\w-]*)-.*$`)
